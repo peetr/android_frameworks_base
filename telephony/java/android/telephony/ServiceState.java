@@ -19,8 +19,9 @@ package android.telephony;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.util.Log;
-
+import com.android.internal.telephony.CustomSpnReader;
 /**
  * Contains phone state and service related information.
  *
@@ -113,6 +114,8 @@ public class ServiceState implements Parcelable {
     public static final int REGISTRATION_STATE_UNKNOWN = 4;
     /** @hide */
     public static final int REGISTRATION_STATE_ROAMING = 5;
+
+    private static String PROPERTY_CDMA_HOME_OPERATOR_NUMERIC = "ro.cdma.home.operator.numeric";
 
     private int mState = STATE_OUT_OF_SERVICE;
     private boolean mRoaming;
@@ -544,9 +547,11 @@ public class ServiceState implements Parcelable {
     }
 
     public void setOperatorName(String longName, String shortName, String numeric) {
-        mOperatorAlphaLong = longName;
+        //mOperatorAlphaLong = longName;
         mOperatorAlphaShort = shortName;
         mOperatorNumeric = numeric;
+        
+        mOperatorAlphaLong = CustomSpnReader.GetCustomName(numeric,longName);
     }
 
     /**
@@ -556,7 +561,14 @@ public class ServiceState implements Parcelable {
      * @hide
      */
     public void setOperatorAlphaLong(String longName) {
-        mOperatorAlphaLong = longName;
+        //mOperatorAlphaLong = longName;
+    	//CDMA:numeric got from build.prop,lanpeng add
+    	String operatorNumberic = SystemProperties.get(PROPERTY_CDMA_HOME_OPERATOR_NUMERIC);
+    	if(operatorNumberic == null || operatorNumberic.isEmpty()) {
+    		mOperatorAlphaLong = CustomSpnReader.GetCustomName(mOperatorNumeric,longName);
+    	}else {
+    		mOperatorAlphaLong = CustomSpnReader.GetCustomName(operatorNumberic,longName);
+    	}
     }
 
     public void setIsManualSelection(boolean isManual) {

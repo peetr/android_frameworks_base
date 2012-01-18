@@ -29,8 +29,6 @@ import com.android.internal.telephony.gsm.GSMPhone;
 import com.android.internal.telephony.sip.SipPhone;
 import com.android.internal.telephony.sip.SipPhoneFactory;
 
-import java.lang.reflect.Constructor;
-
 /**
  * {@hide}
  */
@@ -135,19 +133,17 @@ public class PhoneFactory {
                 Log.i(LOG_TAG, "Cdma Subscription set to " + cdmaSubscription);
 
                 //reads the system properties and makes commandsinterface
-                String sRILClassname = SystemProperties.get("ro.telephony.ril_class", "RIL");
+		String sRILClassname = SystemProperties.get("ro.telephony.ril_class");
                 Log.i(LOG_TAG, "RILClassname is " + sRILClassname);
-
-                // Use reflection to construct the RIL class (defaults to RIL)
-                try {
-                    Class<?> classDefinition = Class.forName("com.android.internal.telephony." + sRILClassname);
-                    Constructor<?> constructor = classDefinition.getConstructor(new Class[] {Context.class, int.class, int.class});
-                    sCommandsInterface = (RIL) constructor.newInstance(new Object[] {context, networkMode, cdmaSubscription});
-                } catch (Exception e) {
-                    // 6 different types of exceptions are thrown here that it's
-                    // easier to just catch Exception as our "error handling" is the same.
-                    Log.wtf(LOG_TAG, "Unable to construct command interface", e);
-                    throw new RuntimeException(e);
+  
+                if ("mototegra".equals(sRILClassname)) {
+                    Log.i(LOG_TAG, "Using Motorola Tegra2 RIL");
+                    sCommandsInterface = new MotoTegraRIL(context, networkMode, cdmaSubscription);
+                } else if ("mototegraglobal".equals(sRILClassname)) {
+                    Log.i(LOG_TAG, "Using Motorola Tegra2 global edition RIL");
+                    sCommandsInterface = new MotoTegraGlobalRIL(context, networkMode, cdmaSubscription);
+                }else {
+                	sCommandsInterface = new RIL(context, networkMode, cdmaSubscription);
                 }
 
                 int phoneType = getPhoneType(networkMode);

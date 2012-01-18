@@ -144,6 +144,8 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
 
     private ContentResolver cr;
     private String currentCarrier = null;
+    //lanpeng add 
+    private String mRILClassname = SystemProperties.get("ro.telephony.ril_class");
 
     private ContentObserver mAutoTimeObserver = new ContentObserver(new Handler()) {
         @Override
@@ -593,6 +595,11 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
                     }
                     if (states[13] != null) {
                         reasonForDenial = Integer.parseInt(states[13]);
+                    }
+		    boolean isMotoTegraGlobal = "mototegraglobal".equals(mRILClassname);
+                    if(isMotoTegraGlobal) {
+                    	Log.i(LOG_TAG,"LP marked mototegraglobal detected ,Global Edition");
+                    	Log.i(LOG_TAG,"It has an extra value : " + states[14]);
                     }
                 } catch (NumberFormatException ex) {
                     loge("EVENT_POLL_STATE_REGISTRATION_CDMA: error parsing: " + ex);
