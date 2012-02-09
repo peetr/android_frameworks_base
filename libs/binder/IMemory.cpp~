@@ -271,6 +271,7 @@ void BpMemoryHeap::assertMapped() const
             if (mHeapId == -1) {
                 mBase   = heap->mBase;
                 mSize   = heap->mSize;
+                mOffset = heap->mOffset;
                 android_atomic_write( dup( heap->mHeapId ), &mHeapId );
             }
         } else {
@@ -294,6 +295,7 @@ void BpMemoryHeap::assertReallyMapped() const
         int parcel_fd = reply.readFileDescriptor();
         ssize_t size = reply.readInt32();
         uint32_t flags = reply.readInt32();
+        uint32_t offset = reply.readInt32();
 
         LOGE_IF(err, "binder=%p transaction failed fd=%d, size=%ld, err=%d (%s)",
                 asBinder().get(), parcel_fd, size, err, strerror(-err));
@@ -310,7 +312,7 @@ void BpMemoryHeap::assertReallyMapped() const
         Mutex::Autolock _l(mLock);
         if (mHeapId == -1) {
             mRealHeap = true;
-            mBase = mmap(0, size, access, MAP_SHARED, fd, 0);
+            mBase = mmap(0, size, access, MAP_SHARED, fd, offset);
             if (mBase == MAP_FAILED) {
                 LOGE("cannot map BpMemoryHeap (binder=%p), size=%ld, fd=%d (%s)",
                         asBinder().get(), size, fd, strerror(errno));
@@ -318,6 +320,7 @@ void BpMemoryHeap::assertReallyMapped() const
             } else {
                 mSize = size;
                 mFlags = flags;
+                mOffset = offset;
                 android_atomic_write(fd, &mHeapId);
             }
         }
@@ -344,6 +347,10 @@ uint32_t BpMemoryHeap::getFlags() const {
     return mFlags;
 }
 
+uint32_t BpMemoryHeap::getOffset() const {
+    assertMapped();
+    return mOffset;
+}
 
 // ---------------------------------------------------------------------------
 
@@ -364,6 +371,7 @@ status_t BnMemoryHeap::onTransact(
             reply->writeFileDescriptor(getHeapID());
             reply->writeInt32(getSize());
             reply->writeInt32(getFlags());
+            reply->writeInt32(getOffset());
             return NO_ERROR;
         } break;
         default:
