@@ -100,7 +100,8 @@ public class PhoneProxy extends Handler implements Phone {
 
                 mActivePhone = PhoneFactory.getCdmaPhone();
                 ((GSMPhone)oldPhone).removeReferences();
-                oldPhone = null;
+                //oldPhone = null;
+                CallManager.getInstance().registerPhoneAsDefault(mActivePhone);
             } else {
                 logd("Make a new GSMPhone and destroy the old CDMAPhone.");
 
@@ -116,7 +117,8 @@ public class PhoneProxy extends Handler implements Phone {
 
                 mActivePhone = PhoneFactory.getGsmPhone();
                 ((CDMAPhone)oldPhone).removeReferences();
-                oldPhone = null;
+                //oldPhone = null;
+                CallManager.getInstance().registerPhoneAsDefault(mActivePhone);
             }
 
             if (mResetModemOnRadioTechnologyChange) {
