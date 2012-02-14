@@ -107,7 +107,6 @@ private:
     mutable void*       mBase;
     mutable size_t      mSize;
     mutable uint32_t    mFlags;
-    mutable uint32_t    mOffset;
     mutable bool        mRealHeap;
     mutable Mutex       mLock;
 };
