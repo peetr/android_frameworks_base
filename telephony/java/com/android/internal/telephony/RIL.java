@@ -3094,7 +3094,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
             dataCall.ifname = Resources.getSystem().getString(com.android.internal.R.string.config_datause_iface);
         } else {
             dataCall.status = p.readInt();
-            dataCall.suggestedRetryTime = p.readInt();
+            if (needsOldRilFeature("usehcradio"))
+                dataCall.suggestedRetryTime = -1;
+            else
+	      dataCall.suggestedRetryTime = p.readInt();
             dataCall.cid = p.readInt();
             dataCall.active = p.readInt();
             dataCall.type = p.readString();

@@ -134,11 +134,7 @@ public class Looper {
                     threadStart = SystemClock.currentThreadTimeMicro();
                 }
 
-                try {
-                	msg.target.dispatchMessage(msg);
-                }catch(Exception ex) {
-                	Log.e(TAG, "LP mark error occured while dispatchMessage :" + msg + ",Exception is : " + ex);
-                }
+                msg.target.dispatchMessage(msg);
 
                 if (logging != null) {
                     long wallTime = SystemClock.currentTimeMicro() - wallStart;

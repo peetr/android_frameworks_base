@@ -310,34 +310,6 @@ public final class CallManager {
         return false;
     }
 
-    public boolean registerPhone(Phone phone, boolean flag)
-    {
-        Phone basePhone = getPhoneBase(phone);
-        boolean bResult = true;
-        if(basePhone != null && !mPhones.contains(bResult))
-        {
-        	Log.d(LOG_TAG, "registerPhone(" +
-                    phone.getPhoneName() + " " + phone + ")");
-            if(mPhones.isEmpty() || flag)
-                mDefaultPhone = basePhone;
-            mPhones.add(basePhone);
-            mRingingCalls.add(basePhone.getRingingCall());
-            mBackgroundCalls.add(basePhone.getBackgroundCall());
-            mForegroundCalls.add(basePhone.getForegroundCall());
-            registerForPhoneStates(basePhone);
-            bResult = true;
-        } else
-        {
-        	bResult = false;
-        }
-        return bResult;
-    }
-    
-    public boolean registerPhoneAsDefault(Phone phone)
-    {
-        return registerPhone(phone, true);
-    }
-
     /**
      * unregister phone from CallManager
      * @param phone to be unregistered
